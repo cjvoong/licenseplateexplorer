@@ -1,5 +1,8 @@
 const axios = require('axios');
 require('dotenv').config();
+const dbService = require('../service/DbService');
+
+const ApiResponse = dbService.getApiResponseModel();
 
 const indexController = {};
 
@@ -41,6 +44,8 @@ indexController.submitForm = async (req, res) => {
 
     // Extract relevant data from the API response
     const apiData = apiResponse.data;
+    const newApiResponse = new ApiResponse(apiData);
+    await newApiResponse.save(); //save to mongo
 
     // Render the view with the API data
     res.render('result', { title: 'Result Page', apiData });

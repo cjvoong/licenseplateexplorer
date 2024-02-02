@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: licenseplate
+      MONGO_INITDB_ROOT_PASSWORD: licenseplate
+      MONGO_INITDB_DATABASE: licenseplate  # Specify the desired database name
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db

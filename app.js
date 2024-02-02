@@ -1,7 +1,18 @@
 const express = require('express');
 const path = require('path');
+const dbService = require('./service/DbService');
+require('dotenv').config();
+
 const app = express();
 const port = 3000;
+
+const username = process.env.DB_USERNAME
+const password = process.env.DB_PASSWORD
+const mongoURI = 'mongodb://' + username + ':' + password + '@localhost:27017/licenseplate?authSource=admin';
+
+console.log(mongoURI);
+
+dbService.connectToDatabase(mongoURI);
 
 // Set up middleware, including static file serving and body parsing
 app.use(express.static(path.join(__dirname, 'public')));
