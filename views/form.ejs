@@ -7,7 +7,8 @@
 </head>
 <body>
   <h1><%= title %></h1>
-  <form action="/submit-form" method="post">
+  <p><a href="/list">View List</a></p>
+  <form action="/view" method="get">
     <label for="registrationNumberInput">Registration Number:</label>
     <input type="text" id="registrationNumberInput" name="registrationNumber" required>
     <button type="submit">Submit</button>

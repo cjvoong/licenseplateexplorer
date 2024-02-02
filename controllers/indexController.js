@@ -12,61 +12,6 @@ indexController.renderForm = (req, res) => {
   res.render('form', { title: 'Search for your license plate' });
 };
 
-indexController.submitForm = async (req, res) => {
-  // Retrieve data from the form submission
-  const registrationNumber = req.body.registrationNumber;
-
-  // Query MongoDB for the registration
-  const existingApiResponse = await ApiResponse.findOne({ registrationNumber });
-
-  if (existingApiResponse) {
-    console.log("Found in db just gonna return that")
-    // Registration already exists in the database, redirect to the view
-    res.render('result', { title: 'Result Page', apiData: existingApiResponse });
-  } else {
-    console.log("Couldn't find in db, gonna call the API");
-    // Registration not found, call the API and save to MongoDB
-    try {
-      //else call the API and save the registration for next time
-      const headers = {
-        'x-api-key': process.env.API_KEY,
-        'Content-Type': 'application/json',
-        // Add any other headers as needed
-      };
-
-      const apiResponse = await apiService.callExternalApi(
-        'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles',
-        { registrationNumber },
-        {
-          'x-api-key': process.env.API_KEY,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        }
-      );
-  
-
-      // Extract relevant data from the API response
-      const apiData = apiResponse.data;
-      const newApiResponse = new ApiResponse(apiData);
-      await newApiResponse.save(); //save to mongo
-
-      // Render the view with the API data
-      res.render('result', { title: 'Result Page', apiData });
-    } catch (error) {
-      if (error.isAxiosError) {
-        // Axios error (API call error)
-        res.status(500).send('Error calling external API');
-      } else if (error.name === 'MongoError') {
-        // MongoDB error
-        res.status(500).send('Error with MongoDB');
-      } else {
-        // Other types of errors
-        res.status(500).send('Internal Server Error');
-      }
-    }
-  }
-};
-
 //list all the registrations in the db
 indexController.list = async (req, res) => {
   try {
@@ -82,25 +27,52 @@ indexController.list = async (req, res) => {
 };
 
 indexController.viewRegistration = async (req, res) => {
-  try {
-    // Extract the registration number from the request parameters
-    const registrationNumber = req.params.registrationNumber;
+  const registrationNumber = req.query.registrationNumber;
+// Query MongoDB for the registration
+  const existingApiResponse = await ApiResponse.findOne({ registrationNumber });
 
-    // Query MongoDB to retrieve the specific registration
-    const registration = await ApiResponse.findOne({ registrationNumber });
+  if (existingApiResponse) {
+    console.log("Found " + registrationNumber + " in db just gonna return that")
+    // Registration already exists in the database, redirect to the view
+    res.render('result', { title: 'Registration Details', apiData: existingApiResponse });
+  } else {
+    console.log("Couldn't find " + registrationNumber + " in db, gonna call the API");
+    let apiResponse;
+    // Registration not found, call the API and save to MongoDB
+    try {
+      //else call the API and save the registration for next time
+      const headers = {
+        'x-api-key': process.env.API_KEY,
+        'Content-Type': 'application/json',
+        // Add any other headers as needed
+      };
 
-    if (registration) {
-      // Render the view with the details of the specific registration
-      res.render('registrationDetails', { title: 'Registration Details', registration });
-    } else {
-      // Registration not found
-      res.status(404).send('Registration not found');
+      apiResponse = await apiService.callExternalApi(
+        'https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles',
+        { registrationNumber },
+        {
+          'x-api-key': process.env.API_KEY,
+          'Content-Type': 'application/json',
+          // Add any other headers as needed
+        }
+      );
+    } catch (error){
+      res.status(500).send('Error calling external API');
+      console.error(error);
     }
-  } catch (error) {
-    console.error('Error retrieving registration:', error.message);
-    res.status(500).send('Internal Server Error');
+    try {
+       // Extract relevant data from the API response
+       const newApiResponse = new ApiResponse(apiResponse);
+      await newApiResponse.save(); //save to mongo
+
+      // Render the view with the API data
+      res.render('result', { title: 'Registration Details', apiData:newApiResponse });
+    } catch (error) {
+        // MongoDB error
+        res.status(500).send('Error with MongoDB');
+        console.error(error);
+    }
   }
 };
-
 
 module.exports = indexController;
