@@ -1,0 +1,9 @@
+<!-- registrationList.ejs -->
+
+<h1>All Registrations</h1>
+<ul>
+  <% registrations.forEach(registration => { %>
+    <li><a href="view/<%= registration.registrationNumber %>"><%= registration.registrationNumber %></a></li>
+    <!-- Display other registration details as needed -->
+  <% }); %>
+</ul>

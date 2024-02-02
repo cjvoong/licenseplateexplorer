@@ -1,0 +1,9 @@
+<!-- registrationDetails.ejs -->
+
+<h1>Registration Details</h1>
+<dl>
+  <% for (const [key, value] of Object.entries(registration._doc)) { %>
+    <dt><%= key %></dt>
+    <dd><%= value %></dd>
+  <% } %>
+</dl>
