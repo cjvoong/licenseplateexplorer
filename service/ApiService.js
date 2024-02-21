@@ -1,5 +1,5 @@
 // apiService.js
-const axios = require('../util/axiosConfig'); // Adjust the path accordingly
+const axios = require('../util/AxiosConfig'); // Adjust the path accordingly
 
 async function callExternalApi(url, data, headers) {
   try {
