@@ -32,11 +32,13 @@ jobs:
         run: npm install
 
       - name: Start Express App
-        run: npm start &
-
-      - name: Check Server Status
-        id: server-status
-        run: sleep 30s
+        run: |
+          npm start &
+          npx wait-on http://localhost:3000
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          DB_USERNAME: licenseplate
+          DB_PASSWORD: licenseplate
 
       - name: Run Cypress Tests
         run: npm test
