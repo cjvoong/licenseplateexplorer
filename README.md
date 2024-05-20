@@ -26,3 +26,4 @@ DB_PASSWORD=licenseplate
 `db.registrations.find();`
 - search
 `db.registrations.find({registrationNumber:'YOUR PLATE'})`
+ 
